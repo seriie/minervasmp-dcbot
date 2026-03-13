@@ -1,11 +1,14 @@
+import { SlashCommandBuilder } from 'discord.js';
+
 export default {
-    name: "ping",
-    description: "Check bot latency and database connection",
-    async execute(message, client) {
-        const sent = await message.reply('Pinging...');
-        const latency = sent.createdTimestamp - message.createdTimestamp;
+    data: new SlashCommandBuilder()
+        .setName('ping')
+        .setDescription('Check bot latency and database connection'),
+    async execute(interaction, client) {
+        const sent = await interaction.reply({ content: 'Pinging...', fetchReply: true });
+        const latency = sent.createdTimestamp - interaction.createdTimestamp;
         const apiLatency = Math.round(client.ws.ping);
         
-        sent.edit(`Pong! 🏓\nLatency: \`${latency}ms\`\nAPI Latency: \`${apiLatency}ms\``);
+        await interaction.editReply(`Pong! 🏓\nLatency: \`${latency}ms\`\nAPI Latency: \`${apiLatency}ms\``);
     }
 };

@@ -1,5 +1,5 @@
 import dotenv from "dotenv";
-import { Client, Collection } from "discord.js";
+import { Client, Collection, REST, Routes } from "discord.js";
 import discordConfig from "./config/discord.js";
 import { startWatcher } from "./controllers/invoiceWatcher.js";
 import fs from "fs";
@@ -22,38 +22,53 @@ for (const file of commandFiles) {
     const filePath = path.join(commandsPath, file);
     import(`file://${filePath}`).then(module => {
         const command = module.default;
-        if ('name' in command && 'execute' in command) {
-            client.commands.set(command.name, command);
+        if ('data' in command && 'execute' in command) {
+            client.commands.set(command.data.name, command);
         } else {
-            console.log(`[WARNING] The command at ${filePath} is missing a required "name" or "execute" property.`);
+            console.log(`[WARNING] The command at ${filePath} is missing a required "data" or "execute" property.`);
         }
     });
 }
 
-client.once("ready", () => {
-  console.log(`Logged in as ${client.user.tag}!`);
-  
-  // Start the Invoice Watcher polling loop
-  startWatcher(client);
+client.once("ready", async () => {
+    console.log(`Logged in as ${client.user.tag}!`);
+    console.log("Started refreshing application (/) commands.");
+
+    try {
+        const rest = new REST({ version: '10' }).setToken(process.env.DISCORD_TOKEN);
+        const commandsData = client.commands.map(cmd => cmd.data.toJSON());
+
+        await rest.put(
+            Routes.applicationGuildCommands(client.user.id, process.env.DISCORD_GUILD_ID),
+            { body: commandsData }
+        );
+
+        console.log("Successfully reloaded application (/) commands.");
+    } catch (error) {
+        console.error("Error registering slash commands: ", error);
+    }
+
+    // Start the Invoice Watcher polling loop
+    startWatcher(client);
 });
 
-client.on("messageCreate", async (message) => {
-  if (message.author.bot) return;
-  if (!message.content.startsWith(discordConfig.prefix)) return;
+client.on("interactionCreate", async (interaction) => {
+    if (!interaction.isChatInputCommand()) return;
 
-  const args = message.content.slice(discordConfig.prefix.length).trim().split(/ +/);
-  const commandName = args.shift().toLowerCase();
+    const command = client.commands.get(interaction.commandName);
 
-  const command = client.commands.get(commandName);
+    if (!command) return;
 
-  if (!command) return;
-
-  try {
-      await command.execute(message, client, args);
-  } catch (error) {
-      console.error(error);
-      await message.reply({ content: 'There was an error while executing this command!', ephemeral: true });
-  }
+    try {
+        await command.execute(interaction, client);
+    } catch (error) {
+        console.error(error);
+        if (interaction.replied || interaction.deferred) {
+            await interaction.followUp({ content: 'There was an error while executing this command!', ephemeral: true });
+        } else {
+            await interaction.reply({ content: 'There was an error while executing this command!', ephemeral: true });
+        }
+    }
 });
 
 client.login(process.env.DISCORD_TOKEN);

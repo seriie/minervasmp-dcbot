@@ -37,7 +37,7 @@ export const startWatcher = (client) => {
                         .setTitle(`💰 Donation: \`${invoice.id}\``)
                         .setDescription("Thank you for supporting Minerva SMP!")
                         .addFields(
-                            { name: ":bust_in_silhouette: Minecraft Username", value: invoice.username ? `**${invoice.username}**` : "*Anonymous*", inline: false },
+                            { name: ":bust_in_silhouette: Username", value: invoice.username ? `**${invoice.username}**` : "*Anonymous*", inline: false },
                             { name: ":moneybag: Amount", value: `$${parseFloat(invoice.amount).toLocaleString('id-ID')} USD`, inline: true },
                             { name: ":moneybag: Fee", value: `$${parseFloat(invoice.fee).toLocaleString('id-ID')} USD`, inline: true },
                             { name: ":bank: Gateway", value: String(invoice.gateway).toUpperCase(), inline: true }
