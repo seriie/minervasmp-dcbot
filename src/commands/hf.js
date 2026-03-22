@@ -29,6 +29,6 @@ export default {
         config.commands.hf.isOpen = status;
         saveConfig(config);
 
-        await interaction.reply(`Hugging Face AI is now ${status ? "enabled" : "disabled"}.`);
+        await interaction.reply(`AI is now ${status ? "enabled" : "disabled"}.`);
     }
 }
