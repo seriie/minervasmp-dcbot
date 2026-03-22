@@ -3,7 +3,7 @@
     "bannedId": [],
     "admin": [],
     "hf": {
-      "isOpen": true,
+      "isOpen": false,
       "bannedId": [
         "1371820977494954070"
       ],
