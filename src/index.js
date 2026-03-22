@@ -5,6 +5,7 @@ import { startWatcher } from "./controllers/invoiceWatcher.js";
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
+import { huggingFace } from "./features/hugging-face/hf.js";
 
 dotenv.config();
 
@@ -50,6 +51,11 @@ client.once("ready", async () => {
 
     // Start the Invoice Watcher polling loop
     startWatcher(client);
+});
+
+client.on("messageCreate", async (msg) => {
+    if (msg.author.bot) return;
+    await huggingFace(client, msg);
 });
 
 client.on("interactionCreate", async (interaction) => {

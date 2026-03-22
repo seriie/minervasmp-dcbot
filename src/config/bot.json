@@ -1,0 +1,12 @@
+{
+  "commands": {
+    "admin": [],
+    "hf": {
+      "isOpen": true,
+      "bannedId": [
+        "1371820977494954070"
+      ],
+      "admin": []
+    }
+  }
+}
