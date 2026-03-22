@@ -6,6 +6,7 @@ import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
 import { huggingFace } from "./features/hugging-face/hf.js";
+import { getConfig } from "./helpers/getConfig.js";
 
 dotenv.config();
 
@@ -60,6 +61,12 @@ client.on("messageCreate", async (msg) => {
 
 client.on("interactionCreate", async (interaction) => {
     if (!interaction.isChatInputCommand()) return;
+
+    // Block banned users from using any command
+    const bannedId = getConfig().commands.bannedId;
+    if (bannedId.includes(interaction.user.id)) {
+        return interaction.reply({ content: "❌ You are banned from using commands." });
+    }
 
     const command = client.commands.get(interaction.commandName);
 

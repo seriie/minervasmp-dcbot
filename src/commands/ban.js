@@ -45,7 +45,6 @@ export default {
             return;
         }
                 
-        console.log(user);
         const reason = interaction.options.getString("reason");
     
         const member = interaction.guild.members.cache.get(user.id)
