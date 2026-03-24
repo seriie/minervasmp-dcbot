@@ -79,7 +79,7 @@ export async function huggingFace(client, msg) {
     }
 
     if (cleanMsg.length === 0) {
-        cleanMsg = "Halo inui";
+        cleanMsg = "Hi bocchi";
     }
 
     if (!chatHistory.has(userId)) {
@@ -96,7 +96,7 @@ export async function huggingFace(client, msg) {
         });
 
         const answer =
-            res.choices?.[0]?.message?.content || "u-um… i-it’s confusing… 😖✨";
+            res.choices?.[0]?.message?.content || "uhm...";
 
         history.push({ role: "assistant", content: answer });
 
@@ -108,7 +108,7 @@ export async function huggingFace(client, msg) {
         }
     } catch (err) {
         myLogs(client, "error", `HF AI error: ${err.toString()}`);
-        msg.reply("i-it broke.. sorry... 😢💦");
+        msg.reply("uhm...");
     }
 }
 
@@ -139,7 +139,7 @@ async function handleTriggers(client, msg) {
         });
 
         const answer =
-            res.choices?.[0]?.message?.content || "u-um… i-it’s confusing… 😖✨";
+            res.choices?.[0]?.message?.content || "uhm...";
 
         history.push({ role: "assistant", content: answer });
 
