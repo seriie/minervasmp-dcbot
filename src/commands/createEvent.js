@@ -87,6 +87,12 @@ export default {
         )
         .addStringOption(option =>
             option
+                .setName('sub_msg')
+                .setDescription('Optional message to send immediately after creating the event')
+                .setRequired(false)
+        )
+        .addStringOption(option =>
+            option
                 .setName('time_reminder')
                 .setDescription('Optional reminder time in 24h format (e.g. 11:30 or 11:30:00)')
                 .setRequired(false)
@@ -105,6 +111,7 @@ export default {
         const dateInput = interaction.options.getString('event_date');
         const timeInput = interaction.options.getString('event_time');
         const content = interaction.options.getString('content');
+        const subMsg = interaction.options.getString('sub_msg');
         const timeReminder = interaction.options.getString('time_reminder');
         const reminderMsg = interaction.options.getString('reminder_msg');
 
@@ -151,6 +158,11 @@ export default {
         let eventMessage;
         try {
             eventMessage = await targetChannel.send({ embeds: [embed] });
+            
+            // Send sub_msg immediately if provided
+            if (subMsg) {
+                await targetChannel.send({ content: subMsg });
+            }
         } catch (err) {
             console.error('[create-event] Failed to send embed:', err);
             return interaction.reply({
