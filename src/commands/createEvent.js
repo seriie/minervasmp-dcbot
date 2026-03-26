@@ -70,7 +70,13 @@ export default {
         .addStringOption(option =>
             option
                 .setName('event_date')
-                .setDescription('Event date & time (e.g. 2026-04-01 20:00 or ISO 8601)')
+                .setDescription('Event date (e.g. 2026-04-01)')
+                .setRequired(true)
+        )
+        .addStringOption(option =>
+            option
+                .setName('event_time')
+                .setDescription('Event time in 24h format (e.g. 20:00 or 20:00:00)')
                 .setRequired(true)
         )
         .addStringOption(option =>
@@ -85,13 +91,15 @@ export default {
         const name        = interaction.options.getString('name');
         const description = interaction.options.getString('description');
         const dateInput   = interaction.options.getString('event_date');
+        const timeInput   = interaction.options.getString('event_time');
         const content     = interaction.options.getString('content');
 
-        // Parse the event date
-        const eventDate = new Date(dateInput);
+        // Combine date + time and parse
+        const combined = `${dateInput}T${timeInput}`;
+        const eventDate = new Date(combined);
         if (isNaN(eventDate.getTime())) {
             return interaction.reply({
-                content: `❌ Invalid date format: \`${dateInput}\`\nUse ISO format like \`2026-04-01T20:00:00+07:00\` or \`2026-04-01 20:00\`.`,
+                content: `❌ Invalid date/time: \`${dateInput}\` / \`${timeInput}\`\nDate format: \`2026-04-01\`, Time format: \`20:00\` or \`20:00:00\`.`,
                 ephemeral: true,
             });
         }
