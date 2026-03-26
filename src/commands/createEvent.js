@@ -84,6 +84,12 @@ export default {
                 .setName('content')
                 .setDescription('Message content to send when the event starts')
                 .setRequired(true)
+        )
+        .addStringOption(option =>
+            option
+                .setName('sub_msg')
+                .setDescription('Optional message to send immediately after creating the event')
+                .setRequired(false)
         ),
 
     async execute(interaction, client) {
@@ -93,6 +99,7 @@ export default {
         const dateInput = interaction.options.getString('event_date');
         const timeInput = interaction.options.getString('event_time');
         const content = interaction.options.getString('content');
+        const subMsg  = interaction.options.getString('sub_msg');
 
         // Combine date + time and parse
         const combined = `${dateInput}T${timeInput}+07:00`; // WIB (UTC+7)
@@ -137,6 +144,11 @@ export default {
         let eventMessage;
         try {
             eventMessage = await targetChannel.send({ embeds: [embed] });
+            
+            // Send sub_msg immediately if provided
+            if (subMsg) {
+                await targetChannel.send({ content: subMsg });
+            }
         } catch (err) {
             console.error('[create-event] Failed to send embed:', err);
             return interaction.reply({
