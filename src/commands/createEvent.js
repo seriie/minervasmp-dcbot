@@ -95,7 +95,7 @@ export default {
         const content     = interaction.options.getString('content');
 
         // Combine date + time and parse
-        const combined = `${dateInput}T${timeInput}+07:00`; // WIB (UTC+7)
+        const combined = `${dateInput}T${timeInput}Z`; // UTC
         const eventDate = new Date(combined);
         if (isNaN(eventDate.getTime())) {
             return interaction.reply({
@@ -154,27 +154,32 @@ export default {
         // Update embed every 10 seconds (Discord rate limit safety)
         const UPDATE_INTERVAL_MS = 10_000;
 
+        // Interval: only updates the countdown embed, never fires content
         const interval = setInterval(async () => {
             const remaining = eventDate.getTime() - Date.now();
-
+            if (remaining <= 0) {
+                clearInterval(interval);
+                return;
+            }
             try {
-                if (remaining <= 0) {
-                    // Event has started — update embed to "started" state then stop
-                    clearInterval(interval);
-
-                    const startedEmbed = buildEmbed(name, description, eventDate, 0);
-                    await eventMessage.edit({ embeds: [startedEmbed] });
-
-                    // Send the event content message
-                    await targetChannel.send({ content });
-                } else {
-                    const updatedEmbed = buildEmbed(name, description, eventDate, remaining);
-                    await eventMessage.edit({ embeds: [updatedEmbed] });
-                }
+                const updatedEmbed = buildEmbed(name, description, eventDate, remaining);
+                await eventMessage.edit({ embeds: [updatedEmbed] });
             } catch (err) {
                 console.error('[create-event] Failed to update countdown embed:', err);
                 clearInterval(interval);
             }
         }, UPDATE_INTERVAL_MS);
+
+        // Timeout: fires exactly when the event starts (precise)
+        setTimeout(async () => {
+            clearInterval(interval);
+            try {
+                const startedEmbed = buildEmbed(name, description, eventDate, 0);
+                await eventMessage.edit({ embeds: [startedEmbed] });
+                await targetChannel.send({ content });
+            } catch (err) {
+                console.error('[create-event] Failed to fire event content:', err);
+            }
+        }, msUntilEvent);
     },
 };
