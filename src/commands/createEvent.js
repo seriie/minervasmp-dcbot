@@ -95,7 +95,7 @@ export default {
         const content     = interaction.options.getString('content');
 
         // Combine date + time and parse
-        const combined = `${dateInput}T${timeInput}`;
+        const combined = `${dateInput}T${timeInput}+07:00`; // WIB (UTC+7)
         const eventDate = new Date(combined);
         if (isNaN(eventDate.getTime())) {
             return interaction.reply({
