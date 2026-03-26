@@ -87,15 +87,15 @@ export default {
         ),
 
     async execute(interaction, client) {
-        const channelId   = interaction.options.getString('channel_id');
-        const name        = interaction.options.getString('name');
+        const channelId = interaction.options.getString('channel_id');
+        const name = interaction.options.getString('name');
         const description = interaction.options.getString('description');
-        const dateInput   = interaction.options.getString('event_date');
-        const timeInput   = interaction.options.getString('event_time');
-        const content     = interaction.options.getString('content');
+        const dateInput = interaction.options.getString('event_date');
+        const timeInput = interaction.options.getString('event_time');
+        const content = interaction.options.getString('content');
 
         // Combine date + time and parse
-        const combined = `${dateInput}T${timeInput}Z`; // UTC
+        const combined = `${dateInput}T${timeInput}+07:00`; // WIB (UTC+7)
         const eventDate = new Date(combined);
         if (isNaN(eventDate.getTime())) {
             return interaction.reply({
