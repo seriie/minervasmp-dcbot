@@ -87,8 +87,14 @@ export default {
         )
         .addStringOption(option =>
             option
-                .setName('sub_msg')
-                .setDescription('Optional message to send immediately after creating the event')
+                .setName('time_reminder')
+                .setDescription('Optional reminder time in 24h format (e.g. 11:30 or 11:30:00)')
+                .setRequired(false)
+        )
+        .addStringOption(option =>
+            option
+                .setName('reminder_msg')
+                .setDescription('Optional message content for the reminder')
                 .setRequired(false)
         ),
 
@@ -99,7 +105,8 @@ export default {
         const dateInput = interaction.options.getString('event_date');
         const timeInput = interaction.options.getString('event_time');
         const content = interaction.options.getString('content');
-        const subMsg  = interaction.options.getString('sub_msg');
+        const timeReminder = interaction.options.getString('time_reminder');
+        const reminderMsg = interaction.options.getString('reminder_msg');
 
         // Combine date + time and parse
         const combined = `${dateInput}T${timeInput}+07:00`; // WIB (UTC+7)
@@ -144,11 +151,6 @@ export default {
         let eventMessage;
         try {
             eventMessage = await targetChannel.send({ embeds: [embed] });
-            
-            // Send sub_msg immediately if provided
-            if (subMsg) {
-                await targetChannel.send({ content: subMsg });
-            }
         } catch (err) {
             console.error('[create-event] Failed to send embed:', err);
             return interaction.reply({
@@ -161,6 +163,28 @@ export default {
             content: `✅ Event **${name}** created in <#${channelId}>! Countdown is live.`,
             ephemeral: true,
         });
+
+        // === Schedule Reminder (if provided) ===
+        if (timeReminder && reminderMsg) {
+            // Assume reminder is on the same date as the event
+            const reminderCombined = `${dateInput}T${timeReminder}+07:00`;
+            const reminderDate = new Date(reminderCombined);
+            
+            if (!isNaN(reminderDate.getTime())) {
+                const msUntilReminder = reminderDate.getTime() - Date.now();
+                
+                // Only schedule if reminder time is in the future
+                if (msUntilReminder > 0) {
+                    setTimeout(async () => {
+                        try {
+                            await targetChannel.send({ content: reminderMsg });
+                        } catch (err) {
+                            console.error('[create-event] Failed to fire reminder msg:', err);
+                        }
+                    }, msUntilReminder);
+                }
+            }
+        }
 
         // === Live countdown ===
         // Update embed every 10 seconds (Discord rate limit safety)
