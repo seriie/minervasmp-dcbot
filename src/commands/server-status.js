@@ -38,7 +38,7 @@ export default {
                 headers: {
                     "Accept": "application/json",
                     "Content-Type": "application/json",
-                    "Authorization": `Bearer ${process.env.PTERODACTYL_API}`,
+                    // "Authorization": `Bearer ${process.env.PTERODACTYL_API}`,
                 }
             });
 
