@@ -33,6 +33,7 @@ export default {
             const onlineCount = payload.players ? payload.players.online : 0;
             const maxPlayers = payload.players ? payload.players.max : 0;
             const playerList = payload.players && payload.players.list ? payload.players.list.join(", ") : "None";
+            console.log(payload.players.list)
 
             const embed = new EmbedBuilder()
                 .setTitle("Minerva SMP - Server Status")
