@@ -26,10 +26,10 @@ export async function getAllPlayers(client) {
             const data = await response.json();
 
             let description = "";
-            let color = "#10B981"; // Green for online
+            let color = "#10B981";
 
             if (!data.online) {
-                color = "#EF4444"; // Red for offline
+                color = "#EF4444";
                 description = "🔴 **Server is currently Offline**";
             } else {
                 const onlineCount = data.players ? data.players.online : 0;
@@ -55,9 +55,8 @@ export async function getAllPlayers(client) {
                 .setTimestamp()
                 .setFooter({ text: "Minerva SMP | Auto-updates every 15 seconds" });
 
-            if (data.icon) {
-                embed.setThumbnail(data.icon);
-            }
+            // Gunakan endpoint gambar langsung dari mcsrvstat, bukan base64 dari data.icon
+            embed.setThumbnail(`https://api.mcsrvstat.us/icon/${serverIp}`);
 
             if (messageToEdit) {
                 await messageToEdit.edit({ embeds: [embed] }).catch(console.error);
