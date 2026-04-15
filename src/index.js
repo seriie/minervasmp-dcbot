@@ -2,6 +2,7 @@ import dotenv from "dotenv";
 import { Client, Collection, REST, Routes } from "discord.js";
 import discordConfig from "./config/discord.js";
 import { startWatcher } from "./controllers/invoiceWatcher.js";
+import { getAllPlayers } from "./features/player-list/pl.js";
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
@@ -52,6 +53,7 @@ client.once("ready", async () => {
 
     // Start the Invoice Watcher polling loop
     startWatcher(client);
+    getAllPlayers(client);
 });
 
 client.on("messageCreate", async (msg) => {
