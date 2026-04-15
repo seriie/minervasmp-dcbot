@@ -3,7 +3,7 @@ import { EmbedBuilder } from "discord.js";
 export async function getAllPlayers(client) {
     const playerListChannelId = process.env.DISCORD_PLAYER_LIST_CHANNEL_ID;
     const serverIp = process.env.MINECRAFT_SERVER_IP || "minervasmp.raznar.net:25080";
-    const url = `https://api.mcsrvstat.us/2/${serverIp}`;
+    const url = `https://api.mcsrvstat.us/3/${serverIp}`;
 
     const channel = await client.channels.fetch(playerListChannelId).catch(() => null);
     if (!channel) {
@@ -19,7 +19,7 @@ export async function getAllPlayers(client) {
         console.error("Failed to fetch messages for player list", e);
     }
 
-    setInterval(async () => {
+    const update = async () => {
         try {
             const response = await fetch(url);
             if (!response.ok) throw new Error("Failed to fetch server status");
@@ -67,5 +67,11 @@ export async function getAllPlayers(client) {
         } catch (error) {
             console.error("Error updating player list:", error);
         }
-    }, 15000);
+    };
+
+    // Call update immediately on startup
+    await update();
+
+    // Then set interval for future updates
+    setInterval(update, 15000);
 }
